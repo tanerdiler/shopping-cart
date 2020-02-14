@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 
+import static com.trendyol.shoppingcart.CampaignSelectionRule.getRules;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,7 +19,7 @@ public class ShoppingCartTest {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(100.0), phoneCategory);
         Product product_2 = new Product("Wheel", Price.of(500.0), carCategory);
 
@@ -36,7 +37,7 @@ public class ShoppingCartTest {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(100.0), phoneCategory);
         Product product_2 = new Product("Wheel", Price.of(500.0), carCategory);
 
@@ -53,7 +54,7 @@ public class ShoppingCartTest {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(100.0), phoneCategory);
         Product product_2 = new Product("Wheel", Price.of(500.0), carCategory);
 
@@ -66,10 +67,10 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void should_apply_discount_if_has_more_than_campaign_limit() throws CampaignNotAppliedException {
+    public void should_apply_discount_if_has_more_than_campaign_limit() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
         Campaign campaign = new Campaign(phoneCategory, Discount.rate(20.0), 3);
@@ -85,10 +86,10 @@ public class ShoppingCartTest {
 
 
     @Test
-    public void should_apply_discount_if_has_items_that_count_is_equal_to_campaign_limit() throws CampaignNotAppliedException {
+    public void should_apply_discount_if_has_items_that_count_is_equal_to_campaign_limit() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
         Campaign campaign = new Campaign(phoneCategory, Discount.rate(20.0), 6);
@@ -104,10 +105,10 @@ public class ShoppingCartTest {
 
 
     @Test
-    public void should_not_apply_discount_if_item_count_is_less_than_campaign_limit() throws CampaignNotAppliedException {
+    public void should_not_apply_discount_if_item_count_is_less_than_campaign_limit() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
         Campaign campaign = new Campaign(phoneCategory, Discount.rate(20.0), 10);
@@ -122,11 +123,11 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void should_apply_discount_to_target_category() throws CampaignNotAppliedException {
+    public void should_apply_discount_to_target_category() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
         Campaign campaign = new Campaign(carCategory, Discount.rate(20.0), 10);
@@ -141,15 +142,15 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void should_apply_max_discount_to_target_category() throws CampaignNotAppliedException {
+    public void should_apply_max_discount_to_target_category() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
 
-        Campaign campaign1 = new Campaign(phoneCategory, Discount.rate(20.0), 10);
-        Campaign campaign2 = new Campaign(phoneCategory, Discount.rate(40.0), 10);
+        Campaign campaign1 = new Campaign(phoneCategory, Discount.rate(20.0), 3);
+        Campaign campaign2 = new Campaign(phoneCategory, Discount.rate(40.0), 3);
 
         // WHEN
         cart.addItem(product_1, 1);
@@ -161,11 +162,11 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void should_apply_discount_of_campaigns_to_only_target_cateogory() throws CampaignNotAppliedException {
+    public void should_apply_discount_of_campaigns_to_only_target_cateogory() {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
@@ -193,7 +194,7 @@ public class ShoppingCartTest {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
@@ -213,7 +214,7 @@ public class ShoppingCartTest {
     public void should_not_apply_coupon_if_amount_is_less_than_limit() throws UnsupportedDiscountTypeException {
         // GIVEN
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
@@ -236,13 +237,13 @@ public class ShoppingCartTest {
         Category iosCategory = new Category("IOS Phone", phoneCategory);
         Category iphoneCategory = new Category("IPhone", iosCategory);
 
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("IPhone 8", Price.of(210.0), iphoneCategory);
         Product product_2 = new Product("MyPhone 5", Price.of(110.0), iosCategory);
 
-        Campaign phoneCampaign = new Campaign(phoneCategory, Discount.rate(10.0), 3);
-        Campaign iphoneCampaign = new Campaign(iphoneCategory, Discount.rate(20.0), 3);
+        Campaign phoneCampaign = new Campaign(phoneCategory, Discount.rate(10.0), 4);
+        Campaign iphoneCampaign = new Campaign(iphoneCategory, Discount.rate(20.0), 1);
 
         // WHEN
         cart.addItem(product_1, 1);
@@ -253,36 +254,12 @@ public class ShoppingCartTest {
         assertEquals(465.0, cart.getTotalAmountAfterDiscounts().getValue().doubleValue(), 0.001);
     }
 
-//    @Test
-//    @Ignore
-//    public void should_not_apply_campaigns_after_a_coupon_applied() throws UnsupportedDiscountTypeException {
-//        // GIVEN
-//        Category phoneCategory = new Category("Phone");
-//        ShoppingCart cart = new ShoppingCart();
-//
-//        Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
-//        Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
-//
-//        Campaign phoneCampaign = new Campaign(phoneCategory, Discount.rate(10.0), 3);
-//        Coupon coupon = new Coupon(Price.of(100.0), Discount.rate(10));
-//
-//        // WHEN
-//        cart.addItem(product_1, 1);
-//        cart.addItem(product_2, 3);
-//        cart.applyCoupons(coupon);
-//
-//        CampaignNotAppliedException exception = assertThrows(CampaignNotAppliedException.class, ()-> cart.applyDiscounts(phoneCampaign));
-//
-//        // THEN
-//        assertEquals("Campaign denied after a coupon", exception.getMessage());
-//    }
-
     @Test
-    public void complex_test_1() throws CampaignNotAppliedException, UnsupportedDiscountTypeException {
+    public void complex_test_1() throws UnsupportedDiscountTypeException {
         // GIVEN
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);
@@ -312,7 +289,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void should_print() throws CampaignNotAppliedException, UnsupportedDiscountTypeException {
+    public void should_print() throws UnsupportedDiscountTypeException {
         // GIVEN
         PrintStream originalOut = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -320,7 +297,7 @@ public class ShoppingCartTest {
 
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(110.0), phoneCategory);

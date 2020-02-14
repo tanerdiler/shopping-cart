@@ -2,6 +2,7 @@ package com.trendyol.shoppingcart;
 
 import org.junit.jupiter.api.Test;
 
+import static com.trendyol.shoppingcart.CampaignSelectionRule.getRules;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DeliveryCostCalculatorTest {
@@ -14,7 +15,7 @@ public class DeliveryCostCalculatorTest {
         double fixedCost = 2.99;
 
         Category phoneCategory = new Category("Phone");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(210.0), phoneCategory);
 
@@ -37,7 +38,7 @@ public class DeliveryCostCalculatorTest {
 
         Category phoneCategory = new Category("Phone");
         Category carCategory = new Category("Car");
-        ShoppingCart cart = new ShoppingCart();
+        ShoppingCart cart = new ShoppingCart(getRules());
 
         Product product_1 = new Product("Apple", Price.of(100.0), phoneCategory);
         Product product_2 = new Product("LG", Price.of(100.0), phoneCategory);

@@ -27,7 +27,14 @@ public class Category {
     }
 
     public boolean isChildOf(Category target) {
-        return this.parent.equals(target);
+        Category category = this;
+        while(nonNull(category)){
+            if (category.equals(target)) {
+                return true;
+            }
+            category = category.parent;
+        }
+        return false;
     }
 
     @Override

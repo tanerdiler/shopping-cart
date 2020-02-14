@@ -1,13 +1,18 @@
 package com.trendyol.shoppingcart;
 
+import com.trendyol.shoppingcart.rules.ChooseCampaignOfNearestCategoryInParentsIfNoExactlyMatchedCampaign;
+import com.trendyol.shoppingcart.rules.ChooseCategoryGraphMatchedCampaigns;
+import com.trendyol.shoppingcart.rules.ChooseLimitMatchedCampaigns;
+import com.trendyol.shoppingcart.rules.ChooseMaxDiscountedCampaigns;
+
 import java.util.*;
-import java.util.function.Function;
 
 import static com.trendyol.shoppingcart.Config.DELIVERY_COST_FIXED;
 import static com.trendyol.shoppingcart.Config.DELIVERY_COST_PER_DELIVERY;
 import static com.trendyol.shoppingcart.Config.DELIVERY_COST_PER_PRODUCT;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 
 public class ShoppingCart {
@@ -16,6 +21,11 @@ public class ShoppingCart {
 
     private Price totalAmountAfterDiscounts = Price.of(0.0);
 
+    private List<CampaignSelectionRule> campaignSelectionRules = new ArrayList<>();
+
+    public ShoppingCart(List<CampaignSelectionRule> campaignSelectionRules){
+        this.campaignSelectionRules = campaignSelectionRules;
+    }
 
     public void addItem(Product product, int quantity) {
         List<CartItem> itemList = items.getOrDefault(product.getCategory(), new ArrayList<>());
@@ -98,16 +108,16 @@ public class ShoppingCart {
 
     public void applyDiscounts(Campaign... campaigns) {
 
-        List<Campaign> campaignList = Arrays.asList(campaigns);
+        Map<Category, List<Campaign>> campaignMap = Arrays.stream(campaigns).collect(groupingBy(c->c.getCategory()));
 
-        Map<Category, Campaign> mapToCampaignWithMaxDiscount = campaignList.stream().collect(toMap(c->c.getCategory(),
-                                                                       Function.identity(),
-                                                                       (Campaign c1, Campaign c2) -> c1.getDiscount().getValue()>c2.getDiscount().getValue()?c1:c2));
+        for (CampaignSelectionRule rule : campaignSelectionRules) {
+            campaignMap = rule.apply(campaignMap, this);
+        }
 
-        items.forEach((productCategory, items)->{
-            Optional<Category> category = choosedCategory(mapToCampaignWithMaxDiscount, productCategory);
-            category.map(c->mapToCampaignWithMaxDiscount.get(c)).ifPresent(c->items.stream().forEach(i->i.applyCampaign(c)));
-        });
+        for (Category category : campaignMap.keySet()){
+            Campaign campaignToApply = campaignMap.get(category).get(0);
+            items.get(category).stream().forEach(p->p.applyCampaign(campaignToApply));
+        }
     }
 
     private Optional<Category> choosedCategory(Map<Category, Campaign> map, Category productCategory) {
@@ -139,6 +149,18 @@ public class ShoppingCart {
         System.out.println(format("Total Amount Before Disctoun ---> %.2f", getTotalAmount().getValue()));
         System.out.println(format("Total Amount  ---> %.2f", getTotalAmountAfterDiscounts().getValue()));
         System.out.println(format("Delivery Cost ---> %.2f", getDeliveryCost()));
+    }
+
+    public Set<Category> getProductCategories() {
+        return items.keySet();
+    }
+
+    public int getProductCountBelongTo(Category category) {
+        return items.keySet().stream()
+                    .filter(c->c.isChildOf(category) || c.equals(category))
+                    .flatMap(c->items.get(c).stream())
+                    .mapToInt(i->i.getQuantity())
+                    .sum();
     }
 
     private static class CartItem {
