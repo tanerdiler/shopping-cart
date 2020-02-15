@@ -27,6 +27,7 @@ public class Category {
     }
 
     public boolean isChildOf(Category target) {
+
         Category category = this;
         while(nonNull(category)){
             if (category.equals(target)) {
@@ -39,6 +40,7 @@ public class Category {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())

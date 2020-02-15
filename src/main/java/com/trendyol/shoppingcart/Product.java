@@ -30,11 +30,13 @@ public class Product {
     }
 
     public boolean isBelongTo(Category category) {
+
         return this.category.equals(category);
     }
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -51,6 +53,7 @@ public class Product {
 
     @Override
     public String toString() {
+
         return "Product{" + "name='" + name + '\'' + ", price=" + price + ", category=" + category + '}';
     }
 }

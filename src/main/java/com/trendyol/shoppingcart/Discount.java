@@ -39,6 +39,7 @@ public class Discount implements Comparable<Discount> {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -63,6 +64,7 @@ public class Discount implements Comparable<Discount> {
 
     @Override
     public int compareTo(Discount target) {
+
         return Double.compare(this.value, target.value);
     }
 }

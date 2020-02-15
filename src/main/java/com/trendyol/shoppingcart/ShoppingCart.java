@@ -120,11 +120,6 @@ public class ShoppingCart {
         }
     }
 
-    private Optional<Category> choosedCategory(Map<Category, Campaign> map, Category productCategory) {
-
-        return productCategory.getCategoriesBottomToTopOrdered().stream().filter(p->map.containsKey(p)).findFirst();
-    }
-
     public void applyCoupons(Coupon coupon) {
         if (isCartAmountGreaterThanCouponLimit(coupon)) {
             applyCouponToEachItem(coupon);
@@ -146,7 +141,7 @@ public class ShoppingCart {
             e.getValue().stream().forEach(i->i.print());
         });
         System.out.println("");
-        System.out.println(format("Total Amount Before Disctoun ---> %.2f", getTotalAmount().getValue()));
+        System.out.println(format("Total Amount Before Discount ---> %.2f", getTotalAmount().getValue()));
         System.out.println(format("Total Amount  ---> %.2f", getTotalAmountAfterDiscounts().getValue()));
         System.out.println(format("Delivery Cost ---> %.2f", getDeliveryCost()));
     }
